@@ -36,9 +36,9 @@ namespace Service.services
         public List<SongDto> GetNewSongs()
         {
             var songs = _repository.GetAll()
-                .OrderByDescending(s => s.Date) 
-                .Take(6)                       
-                .ToList();                    
+                .OrderByDescending(s => s.Date)
+                .Take(6)
+                .ToList();
             return _mapper.Map<List<SongDto>>(songs);
         }
 
@@ -49,7 +49,7 @@ namespace Service.services
         }
         public List<SongDto> GetSongsByCatId(int id)
         {
-            var songs = _repository.GetAll().Where(s => s.CategoryId==id);
+            var songs = _repository.GetAll().Where(s => s.CategoryId == id);
             return _mapper.Map<List<SongDto>>(songs);
         }
 
@@ -156,6 +156,49 @@ namespace Service.services
             {
                 return false;
             }
+        }
+
+        public List<SongDto> Search(SearchObjDto searchObj)
+        {
+            //string[] arr = searchObj.NameSong.Split(',');
+            // 1. מתחילים עם שליפה של כל השירים (כשאילתה בסיסית)
+            var query = _repository.GetAll();
+
+            // 2. סינון לפי שם השיר (אם נשלח)
+            if (!string.IsNullOrEmpty(searchObj.NameSong))
+            {
+                query = query.Where(s => s.Name.Contains(searchObj.NameSong));
+            }
+
+            // 3. סינון לפי שם האמן (אם נשלח)
+            if (!string.IsNullOrEmpty(searchObj.NameArtist))
+            {
+                query = query.Where(s => s.Artist.Contains(searchObj.NameArtist));
+            }
+
+            // 4. סינון לפי מילים בתוך השיר (דורש Join לטבלת השורות)
+            if (!string.IsNullOrEmpty(searchObj.WordLine))
+            {
+                // מחפשים שירים שיש להם לפחות שורה אחת שמכילה את המילה
+                query = query.Where(s => s.WordLines.Any(line => line.Text.Contains(searchObj.WordLine)));
+            }
+
+            // 5. סינון לפי אקורדים (החלק המעניין!)
+            if (searchObj.Chords != null && searchObj.Chords.Count > 0)
+            {
+                // אנחנו רצים על כל אובייקט ChordDto שנשלח מהפרונט (שמכיל Base ו-Extension)
+                foreach (var chordDto in searchObj.Chords)
+                {
+                    // אנחנו מוסיפים תנאי לשאילתה:
+                    // "תוודא שבשיר קיימת לפחות שורה אחת בטבלת האקורדים שבה גם הבסיס וגם התוספת תואמים"
+                    query = query.Where(s => s.Chords.Any(sc =>
+                        sc.Name == chordDto.Name &&
+                        sc.Adding == chordDto.Adding));
+                }
+            }
+
+            // 6. החזרת התוצאות (כולל Include אם את צריכה נתונים מקושרים)
+            return _mapper.Map<List<SongDto>>(query);
         }
     }
 }

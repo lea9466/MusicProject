@@ -1,4 +1,5 @@
 ﻿using MusicDTO;
+using MusicModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace MusicInterfaces.ServiceInterfaces
         public SongDto UpdateSong(FullSongDto fullSongDto);
         public List<SongDto> GetSongsByCatId(int id);
         public List<SongDto> GetNewSongs();
+        public List<SongDto> Search(SearchObjDto searchObj);
 
     }
 }

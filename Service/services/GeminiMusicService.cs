@@ -12,7 +12,7 @@ namespace Service.services
         private readonly HttpClient _httpClient;
         // הערה: מומלץ בסיום הפיתוח להעביר את המפתח ל-appsettings.json
         //string apiKey = "AIzaSyCnmpivfTLs9AcXBEz4J2GGF0OTPUZXv9s";
-        string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCnmpivfTLs9AcXBEz4J2GGF0OTPUZXv9s";
+        string url = "";
         public GeminiMusicService(HttpClient httpClient)
         {
             _httpClient = httpClient;

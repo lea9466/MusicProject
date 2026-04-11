@@ -16,7 +16,8 @@ namespace MusicInterfaces.ServiceInterfaces
         public List<UserDto> GetAllUsers();
 
         public string GenerateJwtToken(UserDto user);
-        public void UpdateNameOrImg(int id, UserDto user);
+        public void UpdateUser(int id, UserDto dto);
+        public User GetById(int id);
 
 
     }

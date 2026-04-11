@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
 using System.Security.Claims;
@@ -97,8 +98,30 @@ namespace MusicProjectAPI.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                service.UpdateNameOrImg(userId, request);
+                service.UpdateUser(userId, request);
                 return NoContent(); // 204 → הצלחה
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message); // 404 → משתמש לא נמצא
+            }
+        }
+
+        [Authorize]
+        [HttpPost("setEmailOrPass")]
+        public IActionResult UpdateEmailOrPass([FromBody] UserDto request)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var user = service.GetById(userId);
+                if (request.Password == user.Password)
+                {
+                    request.Password = request.NewPass;
+                    service.UpdateUser(userId, request);
+                    return NoContent();
+                } // 204 → הצלחה
+                else return BadRequest("now password");
             }
             catch (Exception ex)
             {

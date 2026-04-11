@@ -42,7 +42,6 @@ namespace Service.services
         {
             var newUser = _mapper.Map<User>(userDto);
             _repository.AddItem(newUser);
-
             return _mapper.Map<UserDto>(newUser);
         }
 
@@ -51,12 +50,22 @@ namespace Service.services
             var users = _repository.GetAll();
             return _mapper.Map<List<UserDto>>(users);
         }
+        public User GetById(int id)
+        {
+            var user = _repository.GetById(id);
+            return user;
+        }
 
-        public void UpdateNameOrImg(int id, UserDto dto)
+        public void UpdateUser(int id, UserDto dto)
         {
             var userUpdate = _mapper.Map<User>(dto);
             _repository.UpdateItem(id, userUpdate);
         }
+        //public void UpdateEmailOrPass(int id, UserDto dto)
+        //{
+        //    var userUpdate = _mapper.Map<User>(dto);
+        //    _repository.UpdateItem(id, userUpdate);
+        //}
 
         public string GenerateJwtToken(UserDto user)
         {

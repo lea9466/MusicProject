@@ -1,4 +1,5 @@
-﻿using MusicIinterfaces;
+﻿using MusicDTO;
+using MusicIinterfaces;
 using MusicModels;
 
 namespace Repository
@@ -37,8 +38,9 @@ namespace Repository
 
             existing.Name = item.Name ?? existing.Name;
             existing.srcImage = item.srcImage ?? existing.srcImage;
+            existing.Email = item.Email ?? existing.Email;
+            existing.Password = item.Password ?? existing.Password;
             _context.save();
-
         }
 
         public void DeleteItem(int id)

@@ -73,6 +73,12 @@ namespace MusicProjectAPI.Controllers
             return service.AddFullSong(fullSongDto);
         }
 
+        [HttpPost("Search")]
+        public List<SongDto> Post([FromBody] SearchObjDto searchObjDto)
+        {
+            return service.Search(searchObjDto);
+        }
+
         [HttpPut]
         public SongDto Put( [FromBody] FullSongDto fullSongDto)
         {
