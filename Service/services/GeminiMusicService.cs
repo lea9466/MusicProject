@@ -1,5 +1,6 @@
 ﻿using GenerativeAI;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
 using System.Net.Http.Json;
@@ -10,12 +11,13 @@ namespace Service.services
     public class GeminiMusicService : IGemini
     {
         private readonly HttpClient _httpClient;
-        // הערה: מומלץ בסיום הפיתוח להעביר את המפתח ל-appsettings.json
-        //string apiKey = "AIzaSyCnmpivfTLs9AcXBEz4J2GGF0OTPUZXv9s";
-        string url = "";
-        public GeminiMusicService(HttpClient httpClient)
+        private readonly string _apiKey;
+        private readonly string _model;
+        public GeminiMusicService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _apiKey = configuration["Gemini:ApiKey"];
+            _model = configuration["Gemini:model"];
         }
 
         public async Task<string> GetEnhancedChordsJsonAsync(FullSongDto request)
@@ -51,9 +53,8 @@ namespace Service.services
         private async Task<string> CallGeminiApiAsync(string prompt)
         {
             // 1. הגדרת ה-API Key והכתובת (החליפי ב-KEY שלך)
-            string apiKey = "AIzaSyCnmpivfTLs9AcXBEz4J2GGF0OTPUZXv9s";
-            string model = "gemini-2.5-flash";
-            string url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+            //string model = "gemini-2.5-flash";
+            string url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
 
             var requestBody = new
             {
