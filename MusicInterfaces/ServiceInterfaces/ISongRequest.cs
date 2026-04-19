@@ -11,5 +11,7 @@ namespace MusicInterfaces.ServiceInterfaces
     {
         public SongRequestDto AddSongRequest(SongRequestDto songRequestDto);
         public List<SongRequestDto> GetAllSongRequests(int userId);
+        public void FullReq(SongRequestDto srd);
+
     }
 }

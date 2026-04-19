@@ -18,6 +18,7 @@ namespace MusicModels
         public DateOnly? Date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public string? Language { get; set; }
         public string? scale { get; set; }
+        public string? Tips {  get; set; }
         public virtual ICollection<Chord>? Chords { get; set; }
         public virtual ICollection<UserFavoriteSong>? FavoritedByUsers { get; set; }
         public virtual ICollection<WordLine>? WordLines { get; set; }

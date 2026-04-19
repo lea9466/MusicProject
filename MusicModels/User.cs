@@ -2,7 +2,7 @@
 
 namespace MusicModels
 {
-  
+
     public class User
     {
         [Key]
@@ -17,6 +17,7 @@ namespace MusicModels
         public virtual ICollection<SongRequestVote> SongVotes { get; set; } = new List<SongRequestVote>();
         public virtual ICollection<Song> MySongs { get; set; } = new List<Song>();
         public UserRole Role { get; set; } = UserRole.Regular;
+        public bool IsActive { get; set; } = true;
 
     }
 }

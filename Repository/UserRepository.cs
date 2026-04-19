@@ -1,5 +1,4 @@
-﻿using MusicDTO;
-using MusicIinterfaces;
+﻿using MusicIinterfaces;
 using MusicModels;
 
 namespace Repository
@@ -40,15 +39,16 @@ namespace Repository
             existing.srcImage = item.srcImage ?? existing.srcImage;
             existing.Email = item.Email ?? existing.Email;
             existing.Password = item.Password ?? existing.Password;
+            existing.Role = item.Role == null ? existing.Role : item.Role;
             _context.save();
         }
 
         public void DeleteItem(int id)
         {
             var item = _context.Users.FirstOrDefault(x => x.Id == id);
+            item.IsActive= false;
             if (item != null)
             {
-                _context.Users.Remove(item);
                 _context.save();
             }
         }

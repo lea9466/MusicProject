@@ -78,7 +78,7 @@ namespace MusicProjectAPI.Controllers
         {
             return service.Search(searchObjDto);
         }
-
+        [Authorize]
         [HttpPut]
         public SongDto Put( [FromBody] FullSongDto fullSongDto)
         {

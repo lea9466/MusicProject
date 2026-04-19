@@ -18,6 +18,7 @@ namespace MusicInterfaces.ServiceInterfaces
         public string GenerateJwtToken(UserDto user);
         public void UpdateUser(int id, UserDto dto);
         public User GetById(int id);
+        public void DeleteUser(int id);
 
 
     }

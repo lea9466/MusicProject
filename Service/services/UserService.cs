@@ -47,7 +47,7 @@ namespace Service.services
 
         public List<UserDto> GetAllUsers()
         {
-            var users = _repository.GetAll();
+            var users = _repository.GetAll().Where(u=>u.IsActive);
             return _mapper.Map<List<UserDto>>(users);
         }
         public User GetById(int id)
@@ -61,6 +61,11 @@ namespace Service.services
             var userUpdate = _mapper.Map<User>(dto);
             _repository.UpdateItem(id, userUpdate);
         }
+        public void DeleteUser(int id)
+        {
+            _repository.DeleteItem(id);
+        }
+
         //public void UpdateEmailOrPass(int id, UserDto dto)
         //{
         //    var userUpdate = _mapper.Map<User>(dto);
@@ -84,7 +89,7 @@ namespace Service.services
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(10),
                 signingCredentials: creds
             );
 

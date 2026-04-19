@@ -53,9 +53,7 @@ namespace Service.services
         private async Task<string> CallGeminiApiAsync(string prompt)
         {
             // 1. הגדרת ה-API Key והכתובת (החליפי ב-KEY שלך)
-            //string model = "gemini-2.5-flash";
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
-
             var requestBody = new
             {
                 contents = new[]

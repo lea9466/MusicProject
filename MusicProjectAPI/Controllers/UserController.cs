@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
 using System.Security.Claims;
@@ -51,9 +51,7 @@ namespace MusicProjectAPI.Controllers
         {
             // 1. שמירת המשתמש ב-Database (דרך ה-Service שלך)
             var newUser = service.Register(userDto);
-
             if (newUser == null) return BadRequest("שגיאה ביצירת המשתמש");
-
             var token = service.GenerateJwtToken(newUser);
 
             // 3. החזרת אובייקט אנונימי שמכיל את שניהם
@@ -70,9 +68,19 @@ namespace MusicProjectAPI.Controllers
         {
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            try
+            {
+                service.DeleteUser(id);
+                return NoContent(); // 204 → הצלחה
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message); 
+            }
         }
 
         [HttpPost("login")]
@@ -107,26 +115,22 @@ namespace MusicProjectAPI.Controllers
             }
         }
 
+
         [Authorize]
-        [HttpPost("setEmailOrPass")]
-        public IActionResult UpdateEmailOrPass([FromBody] UserDto request)
+        [HttpPost("setRole")]
+        public IActionResult UpdateRole([FromBody] UserDto request)
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                var user = service.GetById(userId);
-                if (request.Password == user.Password)
-                {
-                    request.Password = request.NewPass;
-                    service.UpdateUser(userId, request);
-                    return NoContent();
-                } // 204 → הצלחה
-                else return BadRequest("now password");
+                var userId = request.Id ?? 0;
+                service.UpdateUser(userId, request);
+                return NoContent(); // 204 → הצלחה
             }
             catch (Exception ex)
             {
                 return NotFound(ex.Message); // 404 → משתמש לא נמצא
             }
+
         }
     }
 }

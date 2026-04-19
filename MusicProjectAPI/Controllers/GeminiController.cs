@@ -15,9 +15,6 @@ namespace MusicProjectAPI.Controllers
     [ApiController]
     public class GeminiController : Controller
     {
-
-
-
         private readonly IGemini service;
         public GeminiController(IGemini Gservice)
         {

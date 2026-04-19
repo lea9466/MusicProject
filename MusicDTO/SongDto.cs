@@ -17,6 +17,7 @@ namespace MusicDTO
         public string? Language { get; set; }
         public string? MajorOrMinor { get; set; }
         public string SourceText { get; set; }
+        public string? Tips { get; set; }
 
         // מזהים בלבד - בלי האובייקטים המלאים
         public int? UserId { get; set; }

@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
 using System.Security.Claims;
+using System.Text.Json;
 
 
-//using MusicModels;
 
 namespace MusicProjectAPI.Controllers
 {
@@ -31,6 +32,21 @@ namespace MusicProjectAPI.Controllers
             var userId = int.Parse(nameIdentifier.Value);
             songRequestDto.CreatorId = userId;
             return service.AddSongRequest(songRequestDto);
+        }
+
+        [Authorize]
+        [HttpPut]
+        public IActionResult Put([FromBody] SongRequestDto songRequestDto)
+        {
+            try
+            {
+                service.FullReq(songRequestDto);
+                return Ok("ok");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בעיבוד הנתונים: {ex.Message}");
+            }
         }
 
 

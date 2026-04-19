@@ -4,7 +4,6 @@ using MusicDTO;
 using MusicIinterfaces;
 using MusicInterfaces.ServiceInterfaces;
 using MusicModels;
-using System.Net;
 
 namespace Service.services
 {
@@ -42,7 +41,7 @@ namespace Service.services
         public List<SongRequestDto> GetAllSongRequests(int userId)
         {
             // 1. שליפת כל הבקשות
-            var songRequests = _repository.GetAll().ToList();
+            var songRequests = _repository.GetAll().Where(s => !s.IsFulfilled).ToList();
             var songRequestsDto = _mapper.Map<List<SongRequestDto>>(songRequests);
 
             // 2. שליפת כל ההצבעות כולל מידע על סוג המשתמש המצביע (חשוב לחישוב הניקוד)
@@ -76,10 +75,15 @@ namespace Service.services
                 {
                     dateScore = today.DayNumber - dto.Date.Value.DayNumber;
                 }
-                dto.VotesCount=allVotes.Where(v => v.SongRequestId == dto.Id).Count();
+                dto.VotesCount = allVotes.Where(v => v.SongRequestId == dto.Id).Count();
                 dto.PriorityScore = votesScore + dateScore;
             }
             return songRequestsDto.OrderByDescending(x => x.PriorityScore).ToList();
+        }
+        public void FullReq(SongRequestDto srd)
+        {
+            _repository.UpdateItem(srd.Id, _mapper.Map<SongRequest>(srd));
+
         }
     }
 }
