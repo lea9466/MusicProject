@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MusicIinterfaces;
 using MusicModels;
 namespace MusicDB
@@ -14,6 +15,14 @@ namespace MusicDB
         public DbSet<SongRequest> SongRequests { get ; set; }
         public DbSet<SongRequestVote> songRequestVotes { get ; set ; }
 
+        protected readonly IConfiguration Configuration;
+        public DataBase(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+        public DataBase()
+        {
+        }
         public void save()
         {
             SaveChanges();
@@ -79,8 +88,21 @@ namespace MusicDB
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("server=DESKTOP-TQTK0I5;database=MusicDataBase;trusted_connection=true;TrustServerCertificate=true");
+            if (!optionsBuilder.IsConfigured)
+            {
+                // אם הגענו לכאן ו-Configuration ריק, סימן שאנחנו בזמן Migration
+                // אפשר להשאיר את זה ככה, או לשים כאן את מחרוזת החיבור המקומית כברירת מחדל
+                if (Configuration != null)
+                {
+                    optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                }
+            }
+            // החלפנו את השרת המקומי בשרת המרוחק עם שם המשתמש והסיסמה החדשים
+            optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
         }
-
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("server=DESKTOP-TQTK0I5;database=MusicDataBase;trusted_connection=true;TrustServerCertificate=true");
+        //}
     }
 }
