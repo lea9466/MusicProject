@@ -1,0 +1,14 @@
+[variables]
+    NIXPACKS_METADATA = 'dotnet'
+
+[setup]
+    pkgs = ['dotnet-sdk_8']
+
+[install]
+    cmds = ['dotnet restore']
+
+[build]
+    cmds = ['dotnet publish MusicProject.sln -c Release -o out']
+
+[start]
+    cmd = 'dotnet out/MusicProjectAPI.dll --urls=http://0.0.0.0:$PORT'
