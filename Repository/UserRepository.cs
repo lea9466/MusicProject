@@ -35,12 +35,24 @@ namespace Repository
             if (existing == null)
                 throw new Exception("User not found");
 
-            existing.Name = item.Name ?? existing.Name;
-            existing.srcImage = item.srcImage ?? existing.srcImage;
-            existing.Email = item.Email ?? existing.Email;
-            existing.Password = item.Password ?? existing.Password;
-            existing.Role = item.Role == null ? existing.Role : item.Role;
-            _context.save();
+            // שימוש ב-IsNullOrWhiteSpace מונע דריסה עם מחרוזת ריקה ""
+            if (!string.IsNullOrWhiteSpace(item.Name))
+                existing.Name = item.Name;
+
+            if (!string.IsNullOrWhiteSpace(item.srcImage))
+                existing.srcImage = item.srcImage;
+
+            if (!string.IsNullOrWhiteSpace(item.Email))
+                existing.Email = item.Email;
+
+            if (!string.IsNullOrWhiteSpace(item.Password))
+                existing.Password = item.Password;
+
+            // עכשיו הבדיקה הזו תעבוד רק אם באמת שלחת Role חדש
+            if (item.Role.HasValue)
+                existing.Role = item.Role.Value;
+
+            _context.save(); // וודאי שכתוב SaveChanges()
         }
 
         public void DeleteItem(int id)

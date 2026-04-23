@@ -1,10 +1,8 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
 using System.Security.Claims;
-using System.Text.Json;
 
 
 
@@ -36,17 +34,9 @@ namespace MusicProjectAPI.Controllers
 
         [Authorize]
         [HttpPut]
-        public IActionResult Put([FromBody] SongRequestDto songRequestDto)
+        public void Put([FromBody] SongRequestDto songRequestDto)
         {
-            try
-            {
-                service.FullReq(songRequestDto);
-                return Ok("ok");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"שגיאה בעיבוד הנתונים: {ex.Message}");
-            }
+            service.FullReq(songRequestDto);
         }
 
 
@@ -64,21 +54,14 @@ namespace MusicProjectAPI.Controllers
                     // בדיקה שהטוקן לא ריק לפני הניסיון לקרוא אותו
                     if (!string.IsNullOrWhiteSpace(token))
                     {
-                        try
-                        {
-                            var nameIdentifier = User.FindFirst(ClaimTypes.NameIdentifier);
-                            if (nameIdentifier == null)
-                            {
-                                return service.GetAllSongRequests(0);
-                            }
-                            var userId = int.Parse(nameIdentifier.Value);
-                            return service.GetAllSongRequests(userId);
 
-                        }
-                        catch (Exception)
+                        var nameIdentifier = User.FindFirst(ClaimTypes.NameIdentifier);
+                        if (nameIdentifier == null)
                         {
-                            // טוקן לא תקין - ממשיכים כמשתמש אנונימי
+                            return service.GetAllSongRequests(0);
                         }
+                        var userId = int.Parse(nameIdentifier.Value);
+                        return service.GetAllSongRequests(userId);
                     }
                 }
             }

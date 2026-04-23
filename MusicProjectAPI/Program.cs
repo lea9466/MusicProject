@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using MusicIinterfaces;
 using MusicInterfaces;
@@ -74,6 +75,29 @@ namespace MusicProjectAPI
                 });
             var app = builder.Build();
             app.UseCors("AllowReactApp");
+
+            // הוספת ה-Middleware ב-Program.cs (לפני app.MapControllers)
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    context.Response.StatusCode = 500;
+                    context.Response.ContentType = "application/json";
+
+                    var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                    var exception = exceptionHandlerPathFeature?.Error;
+
+                    // יצירת אובייקט אחיד - שימי לב לשמות השדות (camelCase)
+                    var errorResponse = new
+                    {
+                        message = "שגיאת שרת פנימית",
+                        details = exception?.Message // השגיאה האמיתית
+                    };
+
+                    await context.Response.WriteAsJsonAsync(errorResponse);
+                });
+            });
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

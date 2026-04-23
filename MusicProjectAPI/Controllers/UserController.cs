@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;
@@ -70,17 +69,9 @@ namespace MusicProjectAPI.Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public void Delete(int id)
         {
-            try
-            {
-                service.DeleteUser(id);
-                return NoContent(); // 204 → הצלחה
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message); 
-            }
+            service.DeleteUser(id);
         }
 
         [HttpPost("login")]
@@ -90,8 +81,6 @@ namespace MusicProjectAPI.Controllers
             if (u == null) return BadRequest("משתמש לא נמצא");
 
             var token = service.GenerateJwtToken(u);
-
-            // 3. החזרת אובייקט אנונימי שמכיל את שניהם
             return Ok(new
             {
                 Token = token,
@@ -101,36 +90,38 @@ namespace MusicProjectAPI.Controllers
 
         [Authorize]
         [HttpPost("setNameOrImg")]
-        public IActionResult UpdateNameOrImg([FromBody] UserDto request)
+        public void UpdateNameOrImg([FromBody] UserDto request)
         {
-            try
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            service.UpdateUser(userId, request);
+        }
+
+        [Authorize]
+        [HttpPost("setEmailOrPass")]
+        public IActionResult UpdateEmailOrPass([FromBody] UserDto request)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = service.GetById(userId);
+
+            // בדיקה אם הסיסמה הנוכחית נכונה
+            if (request.Password == user.Password)
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                request.Password = request.NewPass;
                 service.UpdateUser(userId, request);
-                return NoContent(); // 204 → הצלחה
+                return NoContent(); // 204 הצלחה
             }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message); // 404 → משתמש לא נמצא
-            }
+
+            // כאן את מחזירה את השגיאה המותאמת שלך
+            return BadRequest("הסיסמה הנוכחית שהזנת אינה נכונה");
         }
 
 
         [Authorize]
         [HttpPost("setRole")]
-        public IActionResult UpdateRole([FromBody] UserDto request)
+        public void UpdateRole([FromBody] UserDto request)
         {
-            try
-            {
-                var userId = request.Id ?? 0;
-                service.UpdateUser(userId, request);
-                return NoContent(); // 204 → הצלחה
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message); // 404 → משתמש לא נמצא
-            }
-
+            var userId = request.Id ?? 0;
+            service.UpdateUser(userId, request);
         }
     }
 }

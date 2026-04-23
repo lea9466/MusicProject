@@ -54,18 +54,11 @@ namespace MusicProjectAPI.Controllers
 
         [Authorize]
         [HttpPost("updateCat")]
-        public IActionResult UpdateCat([FromBody] CategoryDto categoryDto)
+        public void UpdateCat([FromBody] CategoryDto categoryDto)
         {
-            try
-            {
-                int catId = categoryDto.Id ?? 0;
-                service.UpdateCategory(catId, categoryDto);
-                return NoContent(); // 204 → הצלחה
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
+            int catId = categoryDto.Id ?? 0;
+            service.UpdateCategory(catId, categoryDto);
+
         }
     }
 }
