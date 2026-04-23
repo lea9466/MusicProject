@@ -1,13 +1,10 @@
-[variables]
-    NIXPACKS_METADATA = 'dotnet'
+[phases.setup]
+    nixPkgs = ['dotnet-sdk_8']
 
-[setup]
-    pkgs = ['dotnet-sdk_8']
-
-[install]
+[phases.install]
     cmds = ['dotnet restore']
 
-[build]
+[phases.build]
     cmds = ['dotnet publish MusicProject.sln -c Release -o out']
 
 [start]
