@@ -97,8 +97,7 @@ namespace MusicDB
                     optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 }
             }
-            // החלפנו את השרת המקומי בשרת המרוחק עם שם המשתמש והסיסמה החדשים
-            optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+           
         }
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
