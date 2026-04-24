@@ -17,10 +17,12 @@ namespace MusicProjectAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // β… Χ¤Χ•Χ¨Χ Χ“Χ™Χ ΧΧ™ Χ-Railway
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
+            // Add services to the container.
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -40,43 +42,53 @@ namespace MusicProjectAPI
             builder.Services.AddScoped<ICompositeDelete<UserFavoriteSong>, UserFavoriteSongRepository>();
             builder.Services.AddScoped<ISongRequest, SongRequestService>();
             builder.Services.AddScoped<IRepository<SongRequest>, SongRequestRepository>();
-
             builder.Services.AddScoped<ISongRequestVot, SongRequestVoteService>();
             builder.Services.AddScoped<IRepository<SongRequestVote>, SongRequestVoteRepository>();
-
             builder.Services.AddScoped<IContext, MusicDB.DataBase>();
+
             builder.Services.AddAutoMapper(cfg =>
             {
-                cfg.AddProfile<MappingProfile>(); // ων ξημχϊ δτψετιμ ωμκ
+                cfg.AddProfile<MappingProfile>();
             }, typeof(Program).Assembly);
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp",
                     policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
+            // β… JWT ΧΆΧ Χ‘Χ“Χ™Χ§Χª null
+            var jwtKey = builder.Configuration["Jwt:Key"]
+                ?? throw new Exception("β Jwt:Key is missing from environment variables!");
+            var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+                ?? throw new Exception("β Jwt:Issuer is missing from environment variables!");
+            var jwtAudience = builder.Configuration["Jwt:Audience"]
+                ?? throw new Exception("β Jwt:Audience is missing from environment variables!");
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                            })
-                .AddJwtBearer(options =>
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-                    };
-                });
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                };
+            });
+
             var app = builder.Build();
+
             app.UseCors("AllowReactApp");
 
-            // δερτϊ δ-Middleware α-Program.cs (μτπι app.MapControllers)
+            // β… Exception handler
             app.UseExceptionHandler(errorApp =>
             {
                 errorApp.Run(async context =>
@@ -87,27 +99,23 @@ namespace MusicProjectAPI
                     var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
                     var exception = exceptionHandlerPathFeature?.Error;
 
-                    // ιφιψϊ ΰεαιιχθ ΰηιγ - ωιξι μα μωξεϊ δωγεϊ (camelCase)
                     var errorResponse = new
                     {
-                        message = "ωβιΰϊ ωψϊ τπιξιϊ",
-                        details = exception?.Message // δωβιΰδ δΰξιϊιϊ
+                        message = "Χ©Χ’Χ™ΧΧª Χ©Χ¨Χª Χ¤Χ Χ™ΧΧ™Χª",
+                        details = exception?.Message
                     };
 
                     await context.Response.WriteAsJsonAsync(errorResponse);
                 });
             });
 
+            // β… Swagger Χ‘Χ›Χ Χ΅Χ‘Χ™Χ‘Χ” (Χ©Χ™ΧΧ•Χ©Χ™ Χ-Railway)
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            // β Χ”Χ•Χ΅Χ¨ UseHttpsRedirection - Railway ΧΧΧ¤Χ Χ‘Χ–Χ” ΧΧ‘Χ—Χ•Χ¥
 
-            app.UseHttpsRedirection();
-            app.UseAuthentication(); 
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
