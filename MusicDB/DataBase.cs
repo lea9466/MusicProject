@@ -1,107 +1,134 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
 using MusicIinterfaces;
+using MusicInterfaces;
+using MusicInterfaces.ServiceInterfaces;
 using MusicModels;
-namespace MusicDB
+using Repository;
+using Service.services;
+using System.Text;
+
+namespace MusicProjectAPI
 {
-    public class DataBase : DbContext, IContext
+    public class Program
     {
-        public DbSet<Song> Songs { get; set; }
-        public DbSet<Chord> Chords { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserFavoriteSong> UserFavoriteSongs { get; set; }
-        public DbSet<WordLine> WordLines { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<SongRequest> SongRequests { get ; set; }
-        public DbSet<SongRequestVote> songRequestVotes { get ; set ; }
-
-        protected readonly IConfiguration Configuration;
-        public DataBase(IConfiguration configuration)
+        public static void Main(string[] args)
         {
-            Configuration = configuration;
-        }
-        public DataBase()
-        {
-        }
-        public void save()
-        {
-            SaveChanges();
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // 1. מפתח משולב למועדפים
-            modelBuilder.Entity<UserFavoriteSong>()
-                .HasKey(x => new { x.UserId, x.SongId });
-
-            modelBuilder.Entity<SongRequestVote>()
-                .HasKey(x => new { x.UserId, x.SongRequestId });
-
-            // הגדרת הקשרים עבור בקשת שיר (SongRequest)
-            modelBuilder.Entity<SongRequest>(entity =>
+            try
             {
-                // 1. קשר למשתמש שביקש (Creator)
-                entity.HasOne(sr => sr.User)
-                      .WithMany(u => u.SongRequests) // הרשימה של "הבקשות שלי" ב-User
-                      .HasForeignKey(sr => sr.CreatorId)
-                      .OnDelete(DeleteBehavior.NoAction); // מונע מחיקה בשרשרת
+                var builder = WebApplication.CreateBuilder(args);
 
-                // 2. קשר למשתמש שמילא את הבקשה (Fulfiller)
-                entity.HasOne(sr => sr.Fulfiller)
-                      .WithMany(u => u.FulfilledRequests) // הרשימה של "בקשות שמילאתי" ב-User
-                      .HasForeignKey(sr => sr.FulfillerId)
-                      .OnDelete(DeleteBehavior.NoAction); // מונע מחיקה בשרשרת
-            });
+                // ✅ פורט דינמי ל-Railway
+                var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+                builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-            // הגדרת הקשר עבור הצבעות (Votes)
-            modelBuilder.Entity<SongRequestVote>(entity =>
-            {
-                // הגדרת המפתח הכפול (מנעת כבר קודם, אבל נוודא את הקשרים)
-                entity.HasKey(v => new { v.UserId, v.SongRequestId });
+                builder.Services.AddControllers();
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen();
 
-                entity.HasOne(v => v.User)
-                      .WithMany(u => u.SongVotes)
-                      .HasForeignKey(v => v.UserId)
-                      .OnDelete(DeleteBehavior.NoAction);
+                builder.Services.AddScoped<ICategory, CategoryService>();
+                builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
+                builder.Services.AddScoped<IUser, UserService>();
+                builder.Services.AddScoped<IRepository<User>, UserRepository>();
+                builder.Services.AddScoped<IChord, ChordService>();
+                builder.Services.AddScoped<IRepository<Chord>, ChordRepository>();
+                builder.Services.AddScoped<ISong, SongService>();
+                builder.Services.AddScoped<IRepository<Song>, SongRepository>();
+                builder.Services.AddScoped<IWordLine, WordLineService>();
+                builder.Services.AddScoped<IRepository<WordLine>, WordLineRepository>();
+                builder.Services.AddScoped<IUserFavoriteSong, UserFavoriteSongService>();
+                builder.Services.AddScoped<IRepository<UserFavoriteSong>, UserFavoriteSongRepository>();
+                builder.Services.AddHttpClient<IGemini, GeminiMusicService>();
+                builder.Services.AddScoped<ICompositeDelete<UserFavoriteSong>, UserFavoriteSongRepository>();
+                builder.Services.AddScoped<ISongRequest, SongRequestService>();
+                builder.Services.AddScoped<IRepository<SongRequest>, SongRequestRepository>();
+                builder.Services.AddScoped<ISongRequestVot, SongRequestVoteService>();
+                builder.Services.AddScoped<IRepository<SongRequestVote>, SongRequestVoteRepository>();
+                builder.Services.AddScoped<IContext, MusicDB.DataBase>();
 
-                entity.HasOne(v => v.SongRequest)
-                      .WithMany(r => r.Votes)
-                      .HasForeignKey(v => v.SongRequestId)
-                      .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            // 2. ברירת מחדל: מניעת מחיקה בשרשרת לכולם (מגן על הקטגוריות והמשתמשים שלך)
-            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            {
-                relationship.DeleteBehavior = DeleteBehavior.NoAction;
-            }
-            modelBuilder.Entity<Song>()
-                   .Property(s => s.Date)
-                        .HasDefaultValueSql("GETDATE()");
-
-            base.OnModelCreating(modelBuilder);
-        }
-
-
-
-
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                // אם הגענו לכאן ו-Configuration ריק, סימן שאנחנו בזמן Migration
-                // אפשר להשאיר את זה ככה, או לשים כאן את מחרוזת החיבור המקומית כברירת מחדל
-                if (Configuration != null)
+                builder.Services.AddAutoMapper(cfg =>
                 {
-                    optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                }
+                    cfg.AddProfile<MappingProfile>();
+                }, typeof(Program).Assembly);
+
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowReactApp",
+                        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                });
+
+                // ✅ JWT עם בדיקת null
+                var jwtKey = builder.Configuration["Jwt:Key"]
+                    ?? throw new Exception("❌ Jwt:Key is missing!");
+                var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+                    ?? throw new Exception("❌ Jwt:Issuer is missing!");
+                var jwtAudience = builder.Configuration["Jwt:Audience"]
+                    ?? throw new Exception("❌ Jwt:Audience is missing!");
+
+                builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtIssuer,
+                        ValidAudience = jwtAudience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    };
+                });
+
+                var app = builder.Build();
+
+                app.UseCors("AllowReactApp");
+
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json";
+
+                        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                        var exception = exceptionHandlerPathFeature?.Error;
+
+                        var errorResponse = new
+                        {
+                            message = "שגיאת שרת פנימית",
+                            details = exception?.Message
+                        };
+
+                        await context.Response.WriteAsJsonAsync(errorResponse);
+                    });
+                });
+
+                app.UseSwagger();
+                app.UseSwaggerUI();
+
+                // ❌ הוסר UseHttpsRedirection
+                app.UseAuthentication();
+                app.UseAuthorization();
+                app.MapControllers();
+
+                app.Run();
             }
-           
+            catch (Exception ex)
+            {
+                Console.WriteLine("=== FATAL ERROR ===");
+                Console.WriteLine($"Type: {ex.GetType().FullName}");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"Inner: {ex.InnerException?.Message}");
+                Console.WriteLine($"Stack: {ex.StackTrace}");
+                Console.WriteLine("===================");
+                throw;
+            }
         }
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer("server=DESKTOP-TQTK0I5;database=MusicDataBase;trusted_connection=true;TrustServerCertificate=true");
-        //}
     }
 }
