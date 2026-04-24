@@ -5,7 +5,7 @@
     cmds = ['dotnet restore']
 
 [phases.build]
-    cmds = ['dotnet publish MusicProject.sln -c Release -o out']
+    cmds = ['dotnet publish MusicProject.sln -c Release -o .']
 
 [start]
-    cmd = "dotnet out/MusicProjectAPI.dll --urls http://0.0.0.0:$PORT"
+    cmd = "dotnet MusicProjectAPI.dll"
