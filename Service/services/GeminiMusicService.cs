@@ -1,5 +1,4 @@
-﻿using GenerativeAI;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using MusicDTO;
 using MusicInterfaces.ServiceInterfaces;

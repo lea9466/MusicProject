@@ -12,8 +12,8 @@ namespace MusicDB
         public DbSet<UserFavoriteSong> UserFavoriteSongs { get; set; }
         public DbSet<WordLine> WordLines { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<SongRequest> SongRequests { get ; set; }
-        public DbSet<SongRequestVote> songRequestVotes { get ; set ; }
+        public DbSet<SongRequest> SongRequests { get; set; }
+        public DbSet<SongRequestVote> songRequestVotes { get; set; }
 
         protected readonly IConfiguration Configuration;
         public DataBase(IConfiguration configuration)
@@ -81,10 +81,6 @@ namespace MusicDB
 
             base.OnModelCreating(modelBuilder);
         }
-
-
-
-
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
