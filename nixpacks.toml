@@ -1,11 +1,8 @@
 [phases.setup]
-    nixPkgs = ['dotnet-sdk_8']
-
+    nixPkgs = ['dotnet-sdk_9']
 [phases.install]
     cmds = ['dotnet restore']
-
 [phases.build]
     cmds = ['dotnet publish MusicProject.sln -c Release -o out /p:UseAppHost=false']
-
 [start]
     cmd = "dotnet out/MusicProjectAPI.dll"
