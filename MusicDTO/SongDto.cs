@@ -23,6 +23,7 @@ namespace MusicDTO
         public int? UserId { get; set; }
         public int CategoryId { get; set; }
         public int? ScaleId { get; set; }
+        public string? CreatorName { get; set; }
 
     }
 }

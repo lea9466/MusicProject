@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MusicDTO;
 using MusicIinterfaces;
 using MusicInterfaces.ServiceInterfaces;
@@ -30,15 +31,17 @@ namespace Service.services
 
         public List<SongDto> GetAllSongs()
         {
-            var songs = _repository.GetAll();
+            var songs = _repository.GetAll().Include(s => s.User);
             return _mapper.Map<List<SongDto>>(songs);
         }
         public List<SongDto> GetNewSongs()
         {
             var songs = _repository.GetAll()
+                .Include(s => s.User) 
                 .OrderByDescending(s => s.Date)
                 .Take(6)
                 .ToList();
+
             return _mapper.Map<List<SongDto>>(songs);
         }
 

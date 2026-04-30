@@ -34,6 +34,10 @@ namespace Service.services
                 .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.User.Name))
                     .ForMember(dest => dest.FulfillerName, opt => opt.MapFrom(src => src.Fulfiller.Name))
                         .ReverseMap();
+            CreateMap<Song, SongDto>()
+            // ממפה את שם המשתמש מתוך האובייקט User
+            .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.User != null ? src.User.Name : string.Empty));
+
         }
     }
 }
