@@ -91,7 +91,9 @@ namespace Service.services
 
         public FullSongDto GetFullSongById(int songId)
         {
-            var songEntity = _repository.GetById(songId);
+            var songEntity = _repository.GetAll()
+                .Include(s => s.User)
+                .FirstOrDefault(s => s.Id == songId); ;
             if (songEntity == null) return null;
             return new FullSongDto
             {
