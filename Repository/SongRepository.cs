@@ -49,6 +49,7 @@ namespace Repository
                 existing.UtubLink = item.UtubLink ?? existing.UtubLink;
                 //existing.Degree = item.Degree;
                 //existing.Date = item.Date;
+                existing.ViewsCount = item.ViewsCount ;
                 existing.Language = item.Language ?? existing.Language;
                 existing.scale = item.scale ?? existing.scale;
                 if (existing.SourceText != item.SourceText)

@@ -1,4 +1,5 @@
 ﻿using MusicIinterfaces;
+using MusicInterfaces.ServiceInterfaces;
 using MusicModels;
 
 namespace Repository
@@ -24,6 +25,7 @@ namespace Repository
 
         public User AddItem(User item)
         {
+            item.Date = DateOnly.FromDateTime(DateTime.Today); 
             _context.Users.Add(item);
             _context.save();
             return item;

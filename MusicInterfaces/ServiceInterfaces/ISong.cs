@@ -13,7 +13,7 @@ namespace MusicInterfaces.ServiceInterfaces
         public List<SongDto> GetAllSongs();
         public SongDto AddSong(SongDto songDto);
         public bool AddFullSong(FullSongDto fullSongDto);
-        public FullSongDto GetFullSongById(int songId);
+        public Task<FullSongDto> GetFullSongById(int songId);
         public List<SongDto> GetSongsByIds(List<int> ids);
         public List<SongDto> GetSongsByUserId(int ID);
         public bool DeleteSong(int Id);
@@ -21,6 +21,7 @@ namespace MusicInterfaces.ServiceInterfaces
         public List<SongDto> GetSongsByCatId(int id);
         public List<SongDto> GetNewSongs();
         public List<SongDto> Search(SearchObjDto searchObj);
+        public Task ToggleChordLike(int songId, bool isLike);
 
     }
 }

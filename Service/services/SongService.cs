@@ -89,12 +89,18 @@ namespace Service.services
             catch { return false; }
         }
 
-        public FullSongDto GetFullSongById(int songId)
+        public async Task<FullSongDto> GetFullSongById(int songId)
         {
-            var songEntity = _repository.GetAll()
+            await _repository.GetAll()
+                .Where(s => s.Id == songId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.ViewsCount, p => p.ViewsCount + 1));
+
+            var songEntity = await _repository.GetAll()
                 .Include(s => s.User)
-                .FirstOrDefault(s => s.Id == songId); ;
+                .FirstOrDefaultAsync(s => s.Id == songId);
+
             if (songEntity == null) return null;
+
             return new FullSongDto
             {
                 Song = _mapper.Map<SongDto>(songEntity),
@@ -204,6 +210,15 @@ namespace Service.services
 
             // 6. החזרת התוצאות (כולל Include אם את צריכה נתונים מקושרים)
             return _mapper.Map<List<SongDto>>(query);
+        }
+        public async Task ToggleChordLike(int songId, bool isLike)
+        {
+            await _repository.GetAll()
+                .Where(s => s.Id == songId)
+                .ExecuteUpdateAsync(s => s.SetProperty(
+                    p => p.ChordLikesCount,
+                    p => isLike ? p.ChordLikesCount + 1 : p.ChordLikesCount - 1
+                ));
         }
     }
 }

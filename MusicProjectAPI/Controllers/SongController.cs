@@ -34,10 +34,10 @@ namespace MusicProjectAPI.Controllers
 
         // יופעל בכתובת: api/songs/full/5
         [HttpGet("full/{id}")]
-        public FullSongDto GetFull(int id)
+        public async Task<FullSongDto> GetFull(int id)
         {
             // מחזיר את השיר עם כל המילים והאקורדים
-            return service.GetFullSongById(id);
+            return await service.GetFullSongById(id);
         }
 
         [HttpPost("GetByIds")]
@@ -90,6 +90,14 @@ namespace MusicProjectAPI.Controllers
         public bool Delete(int id)
         {
            return service.DeleteSong(id);
+        }
+
+        [HttpPost("chord-likes/{songId}")]
+        public async Task<IActionResult> ToggleChordLike(int songId, [FromQuery] bool isLike)
+        {
+            // המתנה לסיום הפעולה במסד הנתונים
+            await service.ToggleChordLike(songId, isLike);
+            return Ok(new { message = "Chord like updated successfully" });
         }
     }
 }
