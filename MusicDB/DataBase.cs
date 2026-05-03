@@ -82,21 +82,21 @@ namespace MusicDB
             base.OnModelCreating(modelBuilder);
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    if (!optionsBuilder.IsConfigured)
-        //    {
-        //        // אם הגענו לכאן ו-Configuration ריק, סימן שאנחנו בזמן Migration
-        //        // אפשר להשאיר את זה ככה, או לשים כאן את מחרוזת החיבור המקומית כברירת מחדל
-        //        if (Configuration != null)
-        //        {
-        //            optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-        //        }
-        //    }
-        //}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("server=DESKTOP-TQTK0I5;database=MusicDataBase;trusted_connection=true;TrustServerCertificate=true");
+            if (!optionsBuilder.IsConfigured)
+            {
+                // אם הגענו לכאן ו-Configuration ריק, סימן שאנחנו בזמן Migration
+                // אפשר להשאיר את זה ככה, או לשים כאן את מחרוזת החיבור המקומית כברירת מחדל
+                if (Configuration != null)
+                {
+                    optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                }
+            }
         }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer("server=DESKTOP-TQTK0I5;database=MusicDataBase;trusted_connection=true;TrustServerCertificate=true");
+        //}
     }
 }
