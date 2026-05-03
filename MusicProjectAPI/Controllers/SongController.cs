@@ -45,6 +45,11 @@ namespace MusicProjectAPI.Controllers
         {
             return service.GetSongsByIds(ids);
         }
+        [HttpGet("GetFlatSongs")]
+        public List<SongDto> GetFlatSongs()
+        {
+            return service.GetFlatSongs();
+        }
 
         [HttpGet("GetByCatId/{id}")] // שיניתי ל-HttpGet והוספתי לוכסן להפרדה
         public List<SongDto> Get(int id) // הוספת הפרמטר id כאן היא קריטית

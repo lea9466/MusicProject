@@ -55,6 +55,16 @@ namespace Service.services
             var songs = _repository.GetAll().Where(s => s.CategoryId == id);
             return _mapper.Map<List<SongDto>>(songs);
         }
+        public List<SongDto> GetFlatSongs()
+        {
+            var songs = _repository.GetAll();
+            return songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Artist = s.Artist
+            }).ToList();
+        }
 
         public SongDto AddSong(SongDto songDto)
         {

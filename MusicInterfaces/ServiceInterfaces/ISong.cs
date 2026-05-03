@@ -22,6 +22,7 @@ namespace MusicInterfaces.ServiceInterfaces
         public List<SongDto> GetNewSongs();
         public List<SongDto> Search(SearchObjDto searchObj);
         public Task ToggleChordLike(int songId, bool isLike);
+        public List<SongDto> GetFlatSongs();
 
     }
 }
