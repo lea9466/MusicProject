@@ -50,6 +50,7 @@ namespace Repository
                 //existing.Degree = item.Degree;
                 //existing.Date = item.Date;
                 existing.ViewsCount = item.ViewsCount ;
+                existing.Credit = item.Credit?? existing.Credit ;
                 existing.Language = item.Language ?? existing.Language;
                 existing.scale = item.scale ?? existing.scale;
                 if (existing.SourceText != item.SourceText)

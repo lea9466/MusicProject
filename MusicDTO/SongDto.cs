@@ -25,7 +25,9 @@ namespace MusicDTO
         public int? ScaleId { get; set; }
         public string? CreatorName { get; set; }
         public int ViewsCount { get; set; } 
-        public int ChordLikesCount { get; set; } 
+        public int ChordLikesCount { get; set; }
+        public string? Credit { get; set; }
+
 
     }
 }

@@ -21,6 +21,8 @@ namespace MusicModels
         public string? Tips {  get; set; }
         public int ViewsCount { get; set; } = 0;
         public int ChordLikesCount { get; set; } = 0;
+        public string? Credit { get; set; }
+
         public virtual ICollection<Chord>? Chords { get; set; }
         public virtual ICollection<UserFavoriteSong>? FavoritedByUsers { get; set; }
         public virtual ICollection<WordLine>? WordLines { get; set; }
