@@ -46,6 +46,7 @@ namespace Repository
                 existing.PriorityScore = item.PriorityScore ?? existing.PriorityScore;
                 existing.IsFulfilled = item.IsFulfilled;
                 existing.FulfillerId = item.FulfillerId ?? existing.FulfillerId;
+                existing.SongLink = item.SongLink ?? existing.SongLink;
 
                 _context.save();
             }
