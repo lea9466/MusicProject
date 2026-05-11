@@ -41,7 +41,7 @@ namespace Service.services
         public List<SongRequestDto> GetAllSongRequests(int userId)
         {
             // 1. שליפת כל הבקשות
-            var songRequests = _repository.GetAll().Where(s => !s.IsFulfilled).ToList();
+            var songRequests = _repository.GetAll().OrderByDescending(s => s.Date).Take(50).ToList();
             var songRequestsDto = _mapper.Map<List<SongRequestDto>>(songRequests);
 
             // 2. שליפת כל ההצבעות כולל מידע על סוג המשתמש המצביע (חשוב לחישוב הניקוד)
