@@ -18,6 +18,8 @@ namespace MusicModels
         public User Fulfiller { get; set; }
         public virtual ICollection<SongRequestVote> Votes { get; set; } = new List<SongRequestVote>();
         public double? PriorityScore { get; set; } 
+        public int? SongLink { get; set; } 
         public bool IsFulfilled { get; set; } = false;
+
     }
 }

@@ -17,6 +17,7 @@ namespace MusicDTO
         public bool? IsFulfilled { get; set; }
         public int? FulfillerId { get; set; }
         public string? FulfillerName { get; set; }
+        public int? SongLink { get; set; }
         public DateOnly? Date { get; set; }
         public bool? isVotedByMe { get; set; } = false;
 
